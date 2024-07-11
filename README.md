@@ -3,7 +3,7 @@ Author: Tran Xuan Quang
 ## Frontend
 
 ### Overview
-This repository contains the frontend application for [Project Name]. It is built with Next.js and TypeScript.
+This repository contains the frontend application for Image Uploader. It is built with Next.js and TypeScript.
 
 ### Getting Started
 1. **Installation**
