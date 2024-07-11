@@ -6,6 +6,9 @@ import ImagePreviewModal from "../components/imagePreviewModal";
 import ImageList from "../components/imageList";
 import ImageUpload from "../components/ImageUpload";
 import axios from "axios";
+interface CustomUploadFile extends UploadFile {
+  comment?: string;
+}
 
 const getBase64 = (file: RcFile): Promise<string> =>
   new Promise((resolve, reject) => {
@@ -19,7 +22,7 @@ const Page = () => {
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [imageList, setImageList] = useState<UploadFile[]>([]);
+  const [imageList, setImageList] = useState<CustomUploadFile[]>([]);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -32,7 +35,21 @@ const Page = () => {
           url: image.url,
         }));
 
-        setImageList(images);
+        const imagesWithComments = await Promise.all(
+          images.map(async (image: any) => {
+            const commentsResponse = await axios.get(
+              `http://localhost:8080/api/images/${image.uid}/comment`
+            );
+            const comments = commentsResponse.data;
+            const comment = comments.length > 0 ? comments[0].content : "";
+            return {
+              ...image,
+              comment: comment,
+            };
+          })
+        );
+        setImageList(imagesWithComments);
+        // console.log(imagesWithComments);
       } catch (error) {
         console.error("Error fetching images:", error);
       }
@@ -67,6 +84,25 @@ const Page = () => {
     setFileList([]);
   };
 
+  const handleAddComment = async (image: CustomUploadFile, comment: string) => {
+    try {
+      await axios.post(
+        `http://localhost:8080/api/images/${image.uid}/comment`,
+        {
+          comment,
+        }
+      );
+
+      setImageList((prevList) =>
+        prevList.map((img) =>
+          img.uid === image.uid ? { ...img, comment } : img
+        )
+      );
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
   return (
     <div
       style={{
@@ -78,7 +114,7 @@ const Page = () => {
         padding: "10px",
       }}
     >
-      <ImageList imageList={imageList} />
+      <ImageList imageList={imageList} onAddComment={handleAddComment} />
       <ImageUpload
         fileList={fileList}
         onPreview={handlePreview}

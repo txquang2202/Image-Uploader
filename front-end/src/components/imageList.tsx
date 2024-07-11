@@ -2,23 +2,30 @@
 import React, { useState } from "react";
 import { List, Button, Input, Modal } from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
-
+interface CustomUploadFile extends UploadFile {
+  comment?: string;
+}
 interface ImageListProps {
-  imageList: UploadFile[];
+  imageList: CustomUploadFile[];
+  onAddComment: (image: CustomUploadFile, comment: string) => void;
 }
 
-const ImageList: React.FC<ImageListProps> = ({ imageList }) => {
+const ImageList: React.FC<ImageListProps> = ({ imageList, onAddComment }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentImage, setCurrentImage] = useState<UploadFile | null>(null);
-  const [comment, setComment] = useState<string>("");
-
-  const showModal = (item: UploadFile) => {
-    setCurrentImage(item);
+  const [currentImage, setCurrentImage] = useState<CustomUploadFile | null>(
+    null
+  );
+  const [comment, setComment] = useState("");
+  console.log(imageList);
+  const showModal = (image: CustomUploadFile) => {
+    setCurrentImage(image);
     setIsModalVisible(true);
   };
 
-  const handleOk = () => {
-    //hanlde
+  const handleOk = async () => {
+    if (currentImage) {
+      await onAddComment(currentImage, comment);
+    }
     setIsModalVisible(false);
     setComment("");
   };
@@ -45,24 +52,28 @@ const ImageList: React.FC<ImageListProps> = ({ imageList }) => {
         dataSource={imageList}
         renderItem={(item) => (
           <List.Item>
-            <img
-              src={item.url || item.preview}
-              alt={item.name}
-              style={{
-                maxWidth: "200px",
-                maxHeight: "200px",
-                objectFit: "contain",
-                marginRight: "10px",
-              }}
-            />
-            <div>
-              {/* <div>{item.comment || "No comments yet"}</div> */}
-              <Button
-                onClick={() => showModal(item)}
-                style={{ marginTop: "10px" }}
-              >
-                Add Comment
-              </Button>
+            <div style={{ display: "flex", alignItems: "center", gap: "50px" }}>
+              <img
+                src={item.url || item.preview}
+                alt={item.name}
+                style={{
+                  maxWidth: "200px",
+                  maxHeight: "200px",
+                  objectFit: "contain",
+                  marginRight: "10px",
+                }}
+              />
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <Button
+                  onClick={() => showModal(item)}
+                  style={{ marginBottom: "10px" }}
+                >
+                  Add Comment
+                </Button>
+                <p style={{ textAlign: "center" }}>
+                  {item.comment || "No comments yet!"}
+                </p>
+              </div>
             </div>
           </List.Item>
         )}
@@ -75,9 +86,9 @@ const ImageList: React.FC<ImageListProps> = ({ imageList }) => {
       >
         <Input
           type="text"
+          placeholder="Enter your comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
-          placeholder="Enter your comment"
         />
       </Modal>
     </div>
