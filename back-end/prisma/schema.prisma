@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String
+  name      String
+  comments  Comment[]
+}
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String
+  imageId Int
+  image   Image  @relation(fields: [imageId], references: [id])
+}
