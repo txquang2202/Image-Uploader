@@ -7,7 +7,7 @@ interface ImageUploadProps {
   fileList: UploadFile[];
   onPreview: (file: UploadFile) => void;
   onChange: UploadProps["onChange"];
-  onAddImages: () => void;
+  onAddImages: (uploadedImages: any[]) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -34,7 +34,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       );
 
       if (response.status === 201) {
-        onAddImages();
+        const uploadedImages = response.data;
+        onAddImages(uploadedImages);
       } else {
         console.error("Failed to upload images");
       }

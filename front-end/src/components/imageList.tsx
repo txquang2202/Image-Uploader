@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from "react";
 import { List, Button, Input, Modal } from "antd";
-import type { UploadFile } from "antd/es/upload/interface";
+import type { UploadFile, UploadFileStatus } from "antd/es/upload/interface";
 interface CustomUploadFile extends UploadFile {
   comment?: string;
+  status: UploadFileStatus;
 }
 interface ImageListProps {
   imageList: CustomUploadFile[];

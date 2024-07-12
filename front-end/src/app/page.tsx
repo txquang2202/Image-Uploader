@@ -1,13 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import type { UploadFile, RcFile } from "antd/es/upload/interface";
+import type {
+  UploadFile,
+  RcFile,
+  UploadFileStatus,
+} from "antd/es/upload/interface";
 import { UploadProps } from "antd";
 import ImagePreviewModal from "../components/imagePreviewModal";
 import ImageList from "../components/imageList";
 import ImageUpload from "../components/ImageUpload";
 import axios from "axios";
+
 interface CustomUploadFile extends UploadFile {
   comment?: string;
+  status: UploadFileStatus;
 }
 
 const getBase64 = (file: RcFile): Promise<string> =>
@@ -71,19 +77,31 @@ const Page = () => {
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
-  const handleAddImages = async () => {
-    const newImageList = await Promise.all(
-      fileList.map(async (file) => {
-        if (!file.url && !file.preview) {
-          file.preview = await getBase64(file.originFileObj as RcFile);
-        }
-        return file;
-      })
-    );
-    setImageList([...imageList, ...newImageList]);
+  const handleAddImages = async (uploadedImages: any | any[]) => {
+    let newImageList: CustomUploadFile[];
+
+    const createImageObject = (image: any) => ({
+      uid: image.id,
+      name: image.name,
+      status: "done" as UploadFileStatus,
+      url: image.url.startsWith("http")
+        ? image.url
+        : `http://localhost:8080${image.url}`,
+      comment: "",
+    });
+
+    if (Array.isArray(uploadedImages)) {
+      newImageList = uploadedImages.map(createImageObject);
+    } else if (uploadedImages && typeof uploadedImages === "object") {
+      newImageList = [createImageObject(uploadedImages)];
+    } else {
+      console.error("Unexpected format for uploadedImages:", uploadedImages);
+      return;
+    }
+
+    setImageList((prevList) => [...prevList, ...newImageList]);
     setFileList([]);
   };
-
   const handleAddComment = async (image: CustomUploadFile, comment: string) => {
     try {
       await axios.post(
