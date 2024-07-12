@@ -2,6 +2,9 @@ import React from "react";
 import { Upload, Button } from "antd";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface ImageUploadProps {
   fileList: UploadFile[];
@@ -24,7 +27,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/add-images",
+        `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/add-images`,
         formData,
         {
           headers: {

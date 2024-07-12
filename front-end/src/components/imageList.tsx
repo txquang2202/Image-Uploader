@@ -17,7 +17,6 @@ const ImageList: React.FC<ImageListProps> = ({ imageList, onAddComment }) => {
     null
   );
   const [comment, setComment] = useState("");
-  console.log(imageList);
   const showModal = (image: CustomUploadFile) => {
     setCurrentImage(image);
     setIsModalVisible(true);

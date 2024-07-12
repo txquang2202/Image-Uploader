@@ -10,7 +10,8 @@ import ImagePreviewModal from "../components/imagePreviewModal";
 import ImageList from "../components/imageList";
 import ImageUpload from "../components/ImageUpload";
 import axios from "axios";
-
+import dotenv from "dotenv";
+dotenv.config();
 interface CustomUploadFile extends UploadFile {
   comment?: string;
   status: UploadFileStatus;
@@ -29,11 +30,12 @@ const Page = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [imageList, setImageList] = useState<CustomUploadFile[]>([]);
-
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/images");
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/images`
+        );
         const images = response.data.map((image: any) => ({
           uid: image.id,
           name: image.name,
@@ -44,7 +46,7 @@ const Page = () => {
         const imagesWithComments = await Promise.all(
           images.map(async (image: any) => {
             const commentsResponse = await axios.get(
-              `http://localhost:8080/api/images/${image.uid}/comment`
+              `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/images/${image.uid}/comment`
             );
             const comments = commentsResponse.data;
             const comment = comments.length > 0 ? comments[0].content : "";
@@ -86,7 +88,7 @@ const Page = () => {
       status: "done" as UploadFileStatus,
       url: image.url.startsWith("http")
         ? image.url
-        : `http://localhost:8080${image.url}`,
+        : `${process.env.NEXT_PUBLIC_BACK_END_API_URL}${image.url}`,
       comment: "",
     });
 
@@ -105,7 +107,7 @@ const Page = () => {
   const handleAddComment = async (image: CustomUploadFile, comment: string) => {
     try {
       await axios.post(
-        `http://localhost:8080/api/images/${image.uid}/comment`,
+        `${process.env.NEXT_PUBLIC_BACK_END_API_URL}/api/images/${image.uid}/comment`,
         {
           comment,
         }

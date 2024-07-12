@@ -7,7 +7,7 @@ const getImages = async (req, res) => {
 
       const imagesWithUrl = images.map((image) => ({
         ...image,
-        url: `http://localhost:8080${image.url}`,
+        url: `${process.env.BACK_END_API_URL}${image.url}`,
       }));
       res.json(imagesWithUrl);
     } catch (error) {
